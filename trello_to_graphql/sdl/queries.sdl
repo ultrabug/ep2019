@@ -1,0 +1,46 @@
+type Query {
+    member(id: String! = me): Member!
+}
+
+# https://developers.trello.com/reference#member-object
+type Member {
+    avatarUrl: String
+    bio: String!
+    boards: [Board!]
+    confirmed: Boolean!
+    email: String
+    fullName: String!
+    id: ID!
+    organizations: [Organization!]
+    initials: String!
+    loginTypes: [String!]
+    marketingOptIn: MarketingOptIn
+    memberReferrer: Member
+    memberType: String!
+    url: String!
+    username: String!
+}
+
+# https://developers.trello.com/reference#board-object
+type Board {
+    closed: Boolean!
+    desc: String
+    id: ID!
+    name: String!
+    url: String!
+}
+
+# https://developers.trello.com/reference#organization-object
+type Organization {
+    desc: String
+    displayName: String!
+    id: ID!
+    name: String!
+    url: String!
+    website: String
+}
+
+type MarketingOptIn {
+    date: String
+    optedIn: Boolean
+}

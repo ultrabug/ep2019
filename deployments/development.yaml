@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trello-to-graphql-development
+  labels:
+    app: trello-to-graphql-development
+  namespace: sandbox
+spec:
+  selector:
+    matchLabels:
+      app: trello-to-graphql-development
+  template:
+    metadata:
+      name: trello-to-graphql-development
+      labels:
+        app: trello-to-graphql-development
+    spec:
+      securityContext:
+        runAsUser: 65534 # nobody
+      containers:
+      - name: trello-to-graphql-development
+        image: registry.numberly.in/ajm/trello-to-graphql:development
+        env:
+        - name: TRELLO_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: trello-to-graphql-development
+              key: trello-api-key
+        - name: TRELLO_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: trello-to-graphql-development
+              key: trello-token
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            cpu: 10m
+            memory: 32Mi
+          requests:
+            cpu: 10m
+            memory: 32Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: trello-to-graphql-development
+  namespace: sandbox
+spec:
+  type: ClusterIP
+  selector:
+    app: trello-to-graphql-development
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8080
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: trello-to-graphql-development
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  namespace: sandbox
+spec:
+  rules:
+  - host: trello-to-graphql-development.sandbox.numberly.in
+    http:
+      paths:
+        - backend:
+            serviceName: trello-to-graphql-development
+            servicePort: 80
+  tls:
+  - hosts:
+      - trello-to-graphql-development.sandbox.numberly.in
+    secretName: tls-trello-to-graphql-development
